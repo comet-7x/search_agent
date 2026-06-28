@@ -6,9 +6,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "comet-7x" }]
 dependencies = [
-    # 在这里声明运行时依赖,例如:
-    # "fastapi>=0.115",
-    # "redis>=5.0",
+    "openai>=2.36.0",
+    "openai-agents>=0.17.4",
+    "pymilvus>=3.0.0",
+    "minio>=7.2.0",
+    "python-dotenv>=1.2.2",
 ]
 
 # 开发依赖:PEP 735 标准写法,新版 uv / pip 均支持
@@ -22,7 +24,6 @@ dev = [
     "pytest-cov>=6.0",
     "pre-commit>=4.6.0",
 ]
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -40,26 +41,26 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # pyflakes
-    "I",    # isort(导入排序)
-    "N",    # pep8-naming
-    "UP",   # pyupgrade(自动用新语法)
-    "B",    # flake8-bugbear(常见 bug 模式)
-    "C4",   # flake8-comprehensions
-    "SIM",  # flake8-simplify
+    "E",                              # pycodestyle errors
+    "W",                              # pycodestyle warnings
+    "F",                              # pyflakes
+    "I",                              # isort(导入排序)
+    "N",                              # pep8-naming
+    "UP",                             # pyupgrade(自动用新语法)
+    "B",                              # flake8-bugbear(常见 bug 模式)
+    "C4",                             # flake8-comprehensions
+    "SIM",                            # flake8-simplify
     "ASYNC",# flake8-async(异步陷阱,你用得上)
-    "S",    # flake8-bandit(安全检查,替代单独的 bandit)
-    "RUF",  # Ruff 专有规则
+    "S",                              # flake8-bandit(安全检查,替代单独的 bandit)
+    "RUF",                            # Ruff 专有规则
 ]
 ignore = [
-    "E501",  # 行长交给 formatter 管
-    "B008",  # FastAPI 的 Depends() 默认参数是惯例,放行
+    "E501",                           # 行长交给 formatter 管
+    "B008",                           # FastAPI 的 Depends() 默认参数是惯例,放行
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]  # 测试里允许 assert
+"tests/**" = ["S101"]             # 测试里允许 assert
 
 [tool.ruff.lint.isort]
 known-first-party = ["comet_project"]
@@ -73,7 +74,7 @@ indent-style = "space"
 # ----------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-asyncio_mode = "auto"          # async def test_* 自动识别,无需逐个标记
+asyncio_mode = "auto"        # async def test_* 自动识别,无需逐个标记
 addopts = [
     "--strict-markers",
     "--cov=comet_project",
@@ -89,14 +90,11 @@ source = ["src/comet_project"]
 show_missing = true
 skip_covered = false
 exclude_lines = [
-    "pragma: no cover",
-    "if TYPE_CHECKING:",
-    "raise NotImplementedError",
+"pragma: no cover",
+"if TYPE_CHECKING:",
+"raise NotImplementedError",
 ]
 
-# ----------------------------------------------------------------------
-# Commitizen:Conventional Commits + 版本管理
-# ----------------------------------------------------------------------
 [tool.commitizen]
 name = "cz_conventional_commits"
 version = "0.1.0"
@@ -105,6 +103,6 @@ version_files = [
     "pyproject.toml:version",
     "src/comet_project/__init__.py:__version__",
 ]
-update_changelog_on_bump = true          # bump 时自动更新 CHANGELOG.md
-major_version_zero = true                # 0.x 阶段:破坏性变更走 minor 而非升到 1.0
-bump_message = "bump: $current_version → $new_version [skip ci]"  # [skip ci] 防 release 自触发
+update_changelog_on_bump = true                                  # bump 时自动更新 CHANGELOG.md
+major_version_zero = true                                        # 0.x 阶段:破坏性变更走 minor 而非升到 1.0
+bump_message = "bump: $current_version → $new_version [skip ci]" # [skip ci] 防 release 自触发
