@@ -9,11 +9,13 @@
 `@function_tool` 是一个装饰器，将普通 Python 函数变成 Agent 可以调用的工具。核心工作分两阶段：
 
 **装饰时**（模块加载时执行一次）
+
 - 用 `inspect.signature` 扫描函数签名，生成 JSON Schema
 - 将签名映射为 Pydantic 模型（`params_pydantic_model`），用于运行时验证
 - 如果第一参数类型是 `RunContextWrapper[X]`，标记 `takes_context=True`
 
 **工具被调用时**（每次 LLM 触发执行）
+
 ```
 LLM 返回 JSON 字符串
   → json.loads
@@ -36,6 +38,7 @@ def search(query: str, top_k: int = 5) -> str:
 ```
 
 LLM 看到的 JSON Schema：
+
 ```json
 {
   "name": "search",
@@ -109,22 +112,22 @@ async def search_tool(context: RunContextWrapper[AgentContext], query: str) -> s
 )
 ```
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `name_override` | `str \| None` | 工具名（LLM 看到的），不填则用函数名 |
-| `description_override` | `str \| None` | 工具描述，不填则取 docstring 第一段。**建议始终填写**，描述直接影响 LLM 的调用决策 |
-| `docstring_style` | `"google" \| "numpy" \| "sphinx" \| None` | docstring 风格，`None` 时自动检测 |
-| `use_docstring_info` | `bool` | `False` 时完全忽略 docstring（不提取描述和参数说明）|
-| `strict_mode` | `bool` | OpenAI Structured Outputs 严格模式，**强烈建议保持 True** |
-| `is_enabled` | `bool \| (ctx, agent) -> bool` | 动态控制工具可见性；返回 `False` 时该工具对 LLM 隐藏 |
-| `needs_approval` | `bool \| (ctx, args, call_id) -> Awaitable[bool]` | 调用前暂停，等待人工审批（`RunState.approve/reject`）|
-| `tool_input_guardrails` | `list[ToolInputGuardrail]` | 参数级 guardrail，可在执行前拦截危险调用 |
-| `tool_output_guardrails` | `list[ToolOutputGuardrail]` | 输出级 guardrail，可过滤敏感返回值 |
-| `timeout` | `float \| None` | 工具执行超时秒数 |
-| `timeout_behavior` | `"error_as_result" \| "raise_exception"` | 超时后是将错误信息返给 LLM，还是直接抛异常终止 run |
-| `failure_error_function` | `(ctx, error) -> str \| None` | 自定义异常 → 错误文本的格式化逻辑；传 `None` 则异常直接上抛 |
-| `defer_loading` | `bool` | Responses API 工具搜索懒加载，通常无需关心 |
-| `custom_data_extractor` | `callback \| None` | 在 `ToolCallOutputItem` 上附加仅 SDK 可见的元数据，不发给 LLM |
+| 参数                       | 类型                                               | 说明                                                                                     |
+| -------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `name_override`          | `str \| None`                                     | 工具名（LLM 看到的），不填则用函数名                                                     |
+| `description_override`   | `str \| None`                                     | 工具描述，不填则取 docstring 第一段。**建议始终填写**，描述直接影响 LLM 的调用决策 |
+| `docstring_style`        | `"google" \| "numpy" \| "sphinx" \| None`           | docstring 风格，`None` 时自动检测                                                      |
+| `use_docstring_info`     | `bool`                                           | `False` 时完全忽略 docstring（不提取描述和参数说明）                                   |
+| `strict_mode`            | `bool`                                           | OpenAI Structured Outputs 严格模式，**强烈建议保持 True**                          |
+| `is_enabled`             | `bool \| (ctx, agent) -> bool`                    | 动态控制工具可见性；返回`False` 时该工具对 LLM 隐藏                                    |
+| `needs_approval`         | `bool \| (ctx, args, call_id) -> Awaitable[bool]` | 调用前暂停，等待人工审批（`RunState.approve/reject`）                                  |
+| `tool_input_guardrails`  | `list[ToolInputGuardrail]`                       | 参数级 guardrail，可在执行前拦截危险调用                                                 |
+| `tool_output_guardrails` | `list[ToolOutputGuardrail]`                      | 输出级 guardrail，可过滤敏感返回值                                                       |
+| `timeout`                | `float \| None`                                   | 工具执行超时秒数                                                                         |
+| `timeout_behavior`       | `"error_as_result" \| "raise_exception"`          | 超时后是将错误信息返给 LLM，还是直接抛异常终止 run                                       |
+| `failure_error_function` | `(ctx, error) -> str \| None`                     | 自定义异常 → 错误文本的格式化逻辑；传`None` 则异常直接上抛                            |
+| `defer_loading`          | `bool`                                           | Responses API 工具搜索懒加载，通常无需关心                                               |
+| `custom_data_extractor`  | `callback \| None`                                | 在`ToolCallOutputItem` 上附加仅 SDK 可见的元数据，不发给 LLM                           |
 
 ---
 
@@ -142,6 +145,7 @@ async def search_tool(context: RunContextWrapper[AgentContext], query: str) -> s
 ```
 
 生成的 schema：
+
 ```json
 "query": {
   "type": "string",
